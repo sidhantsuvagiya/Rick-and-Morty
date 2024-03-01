@@ -10,7 +10,7 @@ const LocationPage = () => {
 
     const [locations, setLocations] = useState<LocationType[]>([]);
     const [characterDetails, setCharacterDetails] = useState<any[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<string>("");
+    const [selectedLocation, setSelectedLocation] = useState<string | number>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
 
@@ -73,7 +73,7 @@ const LocationPage = () => {
         }
     };
 
-    const handleSelectLocation = async (selectedLocation: string) => {
+    const handleSelectLocation = async (selectedLocation: string | number) => {
         setSelectedLocation(selectedLocation);
         // Find the details of the selected location using the name
         const selectedLocationDetails = locations.find((location) => location.name === selectedLocation);

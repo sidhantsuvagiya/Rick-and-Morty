@@ -18,7 +18,7 @@ type EpisodeType = {
 export const EpisodePage: React.FC = () => {
     const [episodes, setEpisodes] = useState<EpisodeType[]>([]);
     const [characterDetails, setCharacterDetails] = useState<any[]>([]);
-    const [selectedEpisode, setSelectedEpisode] = useState<string>("");
+    const [selectedEpisode, setSelectedEpisode] = useState<string | number>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
 
@@ -89,7 +89,7 @@ export const EpisodePage: React.FC = () => {
         }
     }
 
-    const handleSelectEpisode = async (selectedEpisode: string) => {
+    const handleSelectEpisode = async (selectedEpisode: string | number) => {
         setSelectedEpisode(selectedEpisode);
         // Find the details of the selected episode using the name
         const selectedEpisodeDetails = episodes.find((episode) => episode.name === selectedEpisode);
