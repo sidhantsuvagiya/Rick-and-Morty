@@ -17,13 +17,17 @@ const Search: React.FC<SearchProps> = ({ onSearch }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-8 mb-4 flex justify-center">
-            <div className="flex items-center">
-                <input type="text" id="search" placeholder="Enter character name" value={query} onChange={handleChange} className="border border-gray-300 p-2 rounded-l focus:outline-none" />
-                <button type="submit" className="bg-blue-500 text-white border-r border-t border-b border-gray-300 px-4 py-2 rounded-r hover:bg-blue-600 focus:outline-none">Search</button>
+        <form onSubmit={handleSubmit} className="flex justify-center mt-6 mb-4 mx-4">
+            <div className="flex items-center mx-auto">
+                <div className='relative w-full'>
+                    <input type="text" id="search" placeholder="Enter character name" value={query} onChange={handleChange} className="block w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none" />
+                </div>
+                <button type="submit" className="bg-blue-500 text-white border-r border-t border-b border-gray-300 px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none" >
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                </button>
             </div>
         </form>
-    );
-};
+    )
+}
 
-export default Search;
+export default Search

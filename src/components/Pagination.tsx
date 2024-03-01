@@ -27,7 +27,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
         for (let i = startPage; i <= endPage; i++) {
             pageNumbers.push(
                 <li key={i}>
-                    <button className={`${i === currentPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700 hover:bg-gray-400"} inline-block mx-1 px-3 py-2 rounded-md cursor-pointer`} onClick={() => handlePageChange(i)}>{i}</button>
+                    <button className={`${i === currentPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700 hover:bg-gray-400"} inline-block m-2 px-3 py-2 rounded-md cursor-pointer`} onClick={() => handlePageChange(i)}>{i}</button>
                 </li>
             );
         }
@@ -35,17 +35,15 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
     };
 
     return (
-        <div className="my-10">
-            <ul className="flex list-none justify-center">
-                <li className="mr-2">
-                    <button className={`${currentPage === 1 ? "bg-gray-300 text-gray-700 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"} px-3 py-2 rounded-md`} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-                </li>
-                {renderPageNumbers()}
-                <li className="ml-2">
-                    <button className={`${currentPage === totalPages ? "bg-gray-300 text-gray-700 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"} px-3 py-2 rounded-md`} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-                </li>
-            </ul>
-        </div>
+        <ul className="flex list-none justify-center flex-wrap">
+            <li className="m-2">
+                <button className={`${currentPage === 1 ? "bg-gray-300 text-gray-700 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"} px-3 py-2 rounded-md`} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+            </li>
+            {renderPageNumbers()}
+            <li className="m-2">
+                <button className={`${currentPage === totalPages ? "bg-gray-300 text-gray-700 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"} px-3 py-2 rounded-md`} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+            </li>
+        </ul>
     )
 }
 

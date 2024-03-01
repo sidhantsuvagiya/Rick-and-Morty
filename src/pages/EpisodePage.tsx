@@ -1,57 +1,73 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Selector from "../components/Selector";
 import CharacterCard from "../components/CharacterCard";
 import { extractIdsFromUrls } from "../utils/utils";
 import ErrorDisplay from "../components/common/ErrorDisplay";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { LocationType } from "../types/types";
 
-const LocationPage = () => {
+type EpisodeType = {
+    id: number;
+    name: string;
+    air_date: string;
+    episode: string;
+    characters: string[];
+    url: string;
+    created: string;
+}
 
-    const [locations, setLocations] = useState<LocationType[]>([]);
+export const EpisodePage: React.FC = () => {
+    const [episodes, setEpisodes] = useState<EpisodeType[]>([]);
     const [characterDetails, setCharacterDetails] = useState<any[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<string>("");
+    const [selectedEpisode, setSelectedEpisode] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
 
-    const getLocationDetails = async () => {
+    const getEpisodeDetails = async () => {
         try {
             setError("");
             setLoading(true);
 
-            let apiUrl = "https://rickandmortyapi.com/api/location";
-            let allLocations: LocationType[] = [];
+            let apiUrl = "https://rickandmortyapi.com/api/episode";
+            let allEpisodes: EpisodeType[] = [];
 
             do {
                 const response = await fetch(apiUrl);
                 const result = await response.json();
-                allLocations = allLocations.concat(result.results);
+
+                // Append the current page's episodes to the array
+                allEpisodes = allEpisodes.concat(result.results);
+
+                // Update the apiUrl for the next page
                 apiUrl = result.info.next;
+
             } while (apiUrl); // Continue fetching as long as there is a next page
 
-            setLocations(allLocations);
-            await getCharacterDetails(allLocations[0]);
+            setEpisodes(allEpisodes);
+
+            // Call getCharacterDetails for the first time
+            if (allEpisodes.length > 0) {
+                await getCharacterDetails(allEpisodes[0]);
+            }
         } catch (error) {
-            setError(`No locations found. Please try a different search.`);
-            console.log(`Error fetching location details in ${LocationPage}.tsx:`, error);
+            setError(`No episodes found. Please try a different search.`);
+            console.log(`Error fetching episode details in EpisodePage.tsx:`, error);
         } finally {
             setLoading(false);
         }
     };
 
-
-    const getCharacterDetails = async (selectedLocationDetails: LocationType) => {
+    const getCharacterDetails = async (selectedEpisodeDetails: EpisodeType) => {
         try {
             setError("");
             setLoading(true);
 
-            if (selectedLocationDetails.residents.length === 0) {
-                setCharacterDetails([]);
-                setError(`No residents found for the selected location.`);
+            if (selectedEpisodeDetails.characters.length === 0) {
+                setCharacterDetails([]); // or handle it as needed
+                setError(`No characters found for the selected episode.`);
                 return;
             }
 
-            const characterIdsString = extractIdsFromUrls(selectedLocationDetails.residents)
+            const characterIdsString = extractIdsFromUrls(selectedEpisodeDetails.characters);
             const apiUrl = `https://rickandmortyapi.com/api/character/${characterIdsString}`;
             const response = await fetch(apiUrl);
 
@@ -71,19 +87,19 @@ const LocationPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-    const handleSelectLocation = async (selectedLocation: string) => {
-        setSelectedLocation(selectedLocation);
-        // Find the details of the selected location using the name
-        const selectedLocationDetails = locations.find((location) => location.name === selectedLocation);
-        if (selectedLocationDetails) {
-            await getCharacterDetails(selectedLocationDetails);
+    const handleSelectEpisode = async (selectedEpisode: string) => {
+        setSelectedEpisode(selectedEpisode);
+        // Find the details of the selected episode using the name
+        const selectedEpisodeDetails = episodes.find((episode) => episode.name === selectedEpisode);
+        if (selectedEpisodeDetails) {
+            await getCharacterDetails(selectedEpisodeDetails);
         }
-    };
+    }
 
     useEffect(() => {
-        getLocationDetails();
+        getEpisodeDetails();
     }, []);
 
     if (loading) { return <LoadingSpinner /> }
@@ -91,14 +107,14 @@ const LocationPage = () => {
     return (
         <div>
             <Selector
-                options={locations.map((location) => location.name)}
-                selectedOption={selectedLocation ? selectedLocation : ""}
-                onSelectOption={handleSelectLocation}
+                options={episodes.map((episode) => episode.name)}
+                selectedOption={selectedEpisode ? selectedEpisode : ""}
+                onSelectOption={handleSelectEpisode}
             />
-            {error ? <ErrorDisplay error={error} /> : (
+            {error ? (<ErrorDisplay error={error} />) : (
                 <>
                     <div className="p-4 max-w-screen-xl mx-auto grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                        {/* Here you can display the CharacterCard components if needed */}
+                        {/* Display CharacterCard components if needed */}
                         {characterDetails.map((character) => (
                             <CharacterCard key={character.id} character={character} />
                         ))}
@@ -108,5 +124,3 @@ const LocationPage = () => {
         </div>
     )
 }
-
-export default LocationPage;

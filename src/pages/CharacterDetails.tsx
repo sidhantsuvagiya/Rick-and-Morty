@@ -1,52 +1,87 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CharacterType } from "../types/types";
+import { extractIdsFromUrls } from "../utils/utils";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import ErrorDisplay from "../components/common/ErrorDisplay";
+
+const EPISODE_API_URL = "https://rickandmortyapi.com/api/episode/";
+const CHARACTER_API_URL = "https://rickandmortyapi.com/api/character/";
 
 const CharacterDetails = () => {
 
-    const navigate = useNavigate();
-    const [character, setCharacter] = useState<CharacterType | null>(null);
-
     const { characterId } = useParams<{ characterId: string }>();
 
+    const [character, setCharacter] = useState<CharacterType | null>(null);
+    const [episodeDetails, setEpisodeDetails] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string>("");
+
     useEffect(() => {
-        // If characterId is not a valid number, navigate to not found page
-        if (isNaN(parseInt(characterId || "", 10))) {
-            navigate("/not-found");
-            return;
-        }
-        // Fetch character details based on characterId
         getCharacterDetails();
     }, [characterId]);
 
     const getCharacterDetails = async () => {
         try {
-            const characterAPI = `https://rickandmortyapi.com/api/character/${characterId}`;
+            setError("");
+            setLoading(true);
+
+            const characterAPI = `${CHARACTER_API_URL}${characterId}`;
             const response = await fetch(characterAPI);
+
+            if (!response.ok) {
+                throw new Error(`Error: Fetching character details.`);
+            }
+
             const result = await response.json();
-            console.log(result);
             setCharacter(result);
+
+            const episodeIdsString = extractIdsFromUrls(result.episode);
+            const apiUrl = `${EPISODE_API_URL}${episodeIdsString}`;
+            const episodeResponse = await fetch(apiUrl);
+
+            if (!episodeResponse.ok) {
+                throw new Error(`Error: Fetching episode details`);
+            }
+
+            const episodeDetailsResult = await episodeResponse.json();
+            // Ensure characterResult is always an array
+            const detailsArray = Array.isArray(episodeDetailsResult) ? episodeDetailsResult : [episodeDetailsResult];
+            setEpisodeDetails(detailsArray);
         } catch (error) {
-            console.error(`Error fetching character details in ${CharacterDetails}.tsx:`, error);
+            setError(`Error: ${error}`);
+        } finally {
+            setLoading(false);
         }
     };
 
+    if (loading) { return <LoadingSpinner/> }
+
     return (
-        <div className="p-4">
-            <div className="max-w-2xl mx-auto bg-white border border-gray-200 rounded-lg shadow-md p-8">
-                <div className="flex items-center justify-center">
-                    <img className="rounded-full w-32 h-32" src={character?.image} alt={character?.name} loading="lazy" />
-                </div>
-                <div className="mt-8">
-                    <h2 className="text-center text-3xl font-semibold mb-8">{character?.name}</h2>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Status: {character?.status}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Species: {character?.species}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Type: {character?.type || "unknown"}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Gender: {character?.gender}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Location: {character?.location.name}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Origin: {character?.origin.name}</p>
-                    <p className="mb-4 text-xl font-bold text-gray-900">Episodes: {character?.episode.length}</p>
-                </div>
+        <div className="py-4 px-4 sm:py-8">
+            <div className="max-w-2xl mx-auto bg-white border border-gray-200 rounded-lg shadow-md p-4 sm:p-8">
+                {error ? <ErrorDisplay error={error} /> : (
+                    <>
+                        <div className="flex items-center justify-center">
+                            <img className="rounded-full w-32 h-32" src={character?.image} alt={character?.name} loading="lazy" />
+                        </div>
+                        <div>
+                            <h2 className="text-center text-2xl font-semibold my-4 sm:text-3xl">{character?.name}</h2>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Status:</b> {character?.status}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Species:</b> {character?.species}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Origin:</b> {character?.origin.name}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Type:</b> {character?.type || "unknown"}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Gender:</b> {character?.gender}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Location:</b> {character?.location.name}</p>
+                            <p className="mb-4 text-xl text-gray-800"><b className="text-black">Total Episodes:</b> {character?.episode.length}</p>
+                            {episodeDetails.map((episode) => (
+                                <p key={episode.id} className="py-2 border-b border-gray-300">
+                                    {episode.episode + " " + episode.name + " - " + episode.air_date}
+                                </p>
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     )

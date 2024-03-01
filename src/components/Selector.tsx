@@ -1,9 +1,9 @@
 import React from "react";
 
 interface SelectorProps {
-    options: string[];
-    onSelectOption: (location: string) => void;
-    selectedOption: string;
+    options: (string | number)[];
+    onSelectOption: (value: string | number) => void;
+    selectedOption: string | number;
 }
 
 const Selector: React.FC<SelectorProps> = ({ options, onSelectOption, selectedOption }) => {
@@ -14,10 +14,10 @@ const Selector: React.FC<SelectorProps> = ({ options, onSelectOption, selectedOp
     };
 
     return (
-        <form className="flex justify-center">
+        <form className="flex justify-center mt-6 mx-4 my-6">
             <select
                 id="locations"
-                className="max-w-sm m-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                className="max-w-sm bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 onChange={handleSelectChange}
                 value={selectedOption}
             >
