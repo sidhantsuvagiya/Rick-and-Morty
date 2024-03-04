@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Selector from "../components/Selector";
 import CharacterCard from "../components/CharacterCard";
-import { extractIdsFromUrls } from "../utils/utils";
+import { API_BASE_URL, extractIdsFromUrls } from "../utils/utils";
 import ErrorDisplay from "../components/common/ErrorDisplay";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
@@ -27,7 +27,7 @@ export const EpisodePage: React.FC = () => {
             setError("");
             setLoading(true);
 
-            let apiUrl = "https://rickandmortyapi.com/api/episode";
+            let apiUrl = `${API_BASE_URL}/episode`;
             let allEpisodes: EpisodeType[] = [];
 
             do {
@@ -68,7 +68,7 @@ export const EpisodePage: React.FC = () => {
             }
 
             const characterIdsString = extractIdsFromUrls(selectedEpisodeDetails.characters);
-            const apiUrl = `https://rickandmortyapi.com/api/character/${characterIdsString}`;
+            const apiUrl = `${API_BASE_URL}/character/${characterIdsString}`;
             const response = await fetch(apiUrl);
 
             if (!response.ok) {

@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CharacterType } from "../types/types";
-import { extractIdsFromUrls } from "../utils/utils";
+import { API_BASE_URL, extractIdsFromUrls } from "../utils/utils";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorDisplay from "../components/common/ErrorDisplay";
-
-const EPISODE_API_URL = "https://rickandmortyapi.com/api/episode/";
-const CHARACTER_API_URL = "https://rickandmortyapi.com/api/character/";
 
 const CharacterDetails = () => {
 
@@ -26,7 +23,7 @@ const CharacterDetails = () => {
             setError("");
             setLoading(true);
 
-            const characterAPI = `${CHARACTER_API_URL}${characterId}`;
+            const characterAPI = `${API_BASE_URL}/character/${characterId}`;
             const response = await fetch(characterAPI);
 
             if (!response.ok) {
@@ -37,7 +34,7 @@ const CharacterDetails = () => {
             setCharacter(result);
 
             const episodeIdsString = extractIdsFromUrls(result.episode);
-            const apiUrl = `${EPISODE_API_URL}${episodeIdsString}`;
+            const apiUrl = `${API_BASE_URL}/episode/${episodeIdsString}`;
             const episodeResponse = await fetch(apiUrl);
 
             if (!episodeResponse.ok) {
@@ -55,7 +52,7 @@ const CharacterDetails = () => {
         }
     };
 
-    if (loading) { return <LoadingSpinner/> }
+    if (loading) { return <LoadingSpinner /> }
 
     return (
         <div className="py-4 px-4 sm:py-8">
@@ -74,11 +71,13 @@ const CharacterDetails = () => {
                             <p className="mb-4 text-xl text-gray-800"><b className="text-black">Gender:</b> {character?.gender}</p>
                             <p className="mb-4 text-xl text-gray-800"><b className="text-black">Location:</b> {character?.location.name}</p>
                             <p className="mb-4 text-xl text-gray-800"><b className="text-black">Total Episodes:</b> {character?.episode.length}</p>
-                            {episodeDetails.map((episode) => (
-                                <p key={episode.id} className="py-2 border-b border-gray-300">
-                                    {episode.episode + " " + episode.name + " - " + episode.air_date}
-                                </p>
-                            ))}
+                            <ul>
+                                {episodeDetails.map((episode) => (
+                                    <li key={episode.id} className="py-2 border-b border-gray-300">
+                                        {episode.episode + " " + episode.name + " - " + episode.air_date}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     </>
                 )}

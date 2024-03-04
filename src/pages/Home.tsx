@@ -6,8 +6,10 @@ import Search from "../components/Search";
 import ErrorDisplay from "../components/common/ErrorDisplay";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import Selector from "../components/Selector";
+import { API_BASE_URL } from "../utils/utils";
 
 const Home = () => {
+
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
     const [allCharacterDetails, setAllCharacterDetails] = useState<CharacterType[]>([]);
@@ -16,7 +18,7 @@ const Home = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [charactersPerPage, setCharactersPerPage] = useState<any>(8);
+    const [charactersPerPage, setCharactersPerPage] = useState<number>(8);
 
 
     const getCharacterDetails = async () => {
@@ -25,7 +27,7 @@ const Home = () => {
             setError(null);
 
 
-            let apiUrl = `https://rickandmortyapi.com/api/character?page=${currentPage}`;
+            let apiUrl = `${API_BASE_URL}/character?page=${currentPage}`;
 
             if (searchQuery) {
                 apiUrl += `&name=${searchQuery}`;
@@ -58,11 +60,7 @@ const Home = () => {
     const handlePerPageChange = (perPage: number | string) => {
         // Update total pages based on the number of characters and characters per page
         setCurrentPage(1);
-        setCharactersPerPage(perPage);
-
-        // Calculate total pages based on the new perPage value
-        const calculatedTotalPages = Math.ceil(allCharacterDetails.length / Number(perPage));
-        setTotalPages(calculatedTotalPages);
+        setCharactersPerPage(Number(perPage));
     };
 
     useEffect(() => {
@@ -72,6 +70,10 @@ const Home = () => {
     useEffect(() => {
         const startIndex = (currentPage - 1) * charactersPerPage;
         const endIndex = startIndex + charactersPerPage;
+        // Calculate total pages based on the new perPage value
+        const calculatedTotalPages = Math.ceil(allCharacterDetails.length / charactersPerPage);
+        setTotalPages(calculatedTotalPages);
+
         const characterDetailsSlice = allCharacterDetails.slice(startIndex, endIndex);
         setCharacterDetails(characterDetailsSlice);
     }, [currentPage, charactersPerPage, allCharacterDetails]);
